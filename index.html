@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<title>Ana Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c0f;--surface:#111417;--card:#161a1f;--border:#1e2530;
+  --accent:#00e5ff;--green:#00ff88;--red:#ff3860;--yellow:#ffd600;
+  --text:#e0e8f0;--muted:#5a6a7a;
+  --c1:#00e5ff;--c2:#ff6d00;--c3:#a78bfa;--c4:#00ff88;
+  --c5:#ffd700;--c6:#ff3860;--c7:#f7931a;--c8:#e63946}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body{padding-bottom:80px}
+header{position:sticky;top:0;z-index:100;background:#0d1117;border-bottom:1px solid var(--accent);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 20px rgba(0,229,255,.1)}
+.h-title{font-size:18px;font-weight:700;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--accent),var(--green));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.h-sub{font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.h-right{text-align:right}
+.h-total-tl{font-size:20px;font-weight:700;font-family:'Share Tech Mono',monospace;color:var(--accent)}
+.h-total-usd{font-size:13px;font-family:'Share Tech Mono',monospace;color:var(--muted)}
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:62px;z-index:99}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:600;
+  letter-spacing:1px;color:var(--muted);border-bottom:2px solid transparent;
+  cursor:pointer;transition:all .2s;text-transform:uppercase}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,229,255,.05)}
+.section{display:none;padding:12px}.section.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.kur-bar{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:10px;
+  padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.kur-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.kur-val{font-family:'Share Tech Mono',monospace;font-size:16px;color:var(--accent)}
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ov-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.ov-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.ov-val{font-family:'Share Tech Mono',monospace;font-size:17px;margin-top:4px}
+.ov-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px}
+.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--muted)}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+/* Portföy satırları */
+.pf-row{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.pf-row:last-child{border-bottom:none}
+.pf-left{display:flex;align-items:center;gap:10px}
+.pf-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pf-name{font-size:14px;font-weight:700}
+.pf-sub{font-size:11px;color:var(--muted)}
+.pf-right{text-align:right}
+.pf-val{font-family:'Share Tech Mono',monospace;font-size:14px}
+.pf-pct{font-size:11px;font-family:'Share Tech Mono',monospace}
+.pf-bar-wrap{height:4px;background:var(--border);border-radius:2px;margin-top:4px;width:80px}
+.pf-bar{height:100%;border-radius:2px;transition:width .3s}
+/* Giriş */
+.inp-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.inp-row:last-child{border-bottom:none}
+.inp-name{font-size:13px;font-weight:700;flex:1}
+.inp-sub{font-size:10px;color:var(--muted)}
+.inp-field{background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:'Share Tech Mono',monospace;font-size:15px;
+  padding:8px 10px;outline:none;-webkit-appearance:none;width:130px;text-align:right}
+.inp-field:focus{border-color:var(--accent)}
+.btn{width:100%;padding:13px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--accent),#0077ff);color:#000;
+  font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:10px}
+canvas{width:100%;border-radius:8px;background:var(--bg)}
+.range-btns{display:flex;gap:6px}
+.range-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:11px;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-weight:700}
+.range-btn.active{border-color:var(--accent);background:rgba(0,229,255,.1);color:var(--accent)}
+#alert{position:fixed;bottom:20px;left:16px;right:16px;z-index:999;padding:12px 16px;
+  border-radius:10px;font-size:14px;font-weight:700;display:none;
+  align-items:center;justify-content:center;text-align:center}
+#alert.ok{background:var(--green);color:#000}
+#alert.err{background:var(--red);color:#fff}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid var(--muted);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="h-title">⚡ DASHBOARD</div>
+    <div class="h-sub" id="last-update">Son güncelleme: —</div>
+  </div>
+  <div class="h-right">
+    <div class="h-total-tl" id="h-total-tl">—</div>
+    <div class="h-total-usd" id="h-total-usd">—</div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tab active" data-tab="overview" onclick="showTab(this)">📊 Özet</div>
+  <div class="tab" data-tab="entry" onclick="showTab(this)">➕ Giriş</div>
+  <div class="tab" data-tab="chart" onclick="showTab(this)">📈 Grafik</div>
+  <div class="tab" data-tab="history" onclick="showTab(this)">📋 Geçmiş</div>
+</div>
+
+<!-- ÖZET -->
+<div id="tab-overview" class="section active">
+  <!-- Kur -->
+  <div class="kur-bar">
+    <div>
+      <div class="kur-label">USD/TL Kuru</div>
+      <div id="kur-time" style="font-size:10px;color:var(--muted)">—</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input id="kur-manuel" type="number" inputmode="decimal" step="0.01" placeholder="Manuel"
+        style="width:90px;background:var(--bg);border:1px solid var(--border);border-radius:6px;
+        color:var(--text);font-family:'Share Tech Mono',monospace;font-size:14px;
+        padding:4px 8px;outline:none;-webkit-appearance:none"
+        onchange="setManuelKur(this.value)">
+      <div class="kur-val" id="kur-val">—</div>
+      <button onclick="fetchKur()" style="background:rgba(0,229,255,.1);border:1px solid var(--accent);
+        color:var(--accent);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer">⟳</button>
+    </div>
+  </div>
+
+  <!-- Toplam kartlar -->
+  <div class="ov-grid">
+    <div class="ov-card" style="border-color:rgba(0,229,255,.3)">
+      <div class="ov-label">Toplam (₺)</div>
+      <div class="ov-val" id="ov-tl">—</div>
+    </div>
+    <div class="ov-card" style="border-color:rgba(0,255,136,.3)">
+      <div class="ov-label">Toplam ($)</div>
+      <div class="ov-val" id="ov-usd">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Önceki Kayıt</div>
+      <div class="ov-val neu" id="ov-prev-pct">—</div>
+      <div class="ov-sub" id="ov-prev-tl">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Başlangıçtan</div>
+      <div class="ov-val neu" id="ov-all-pct">—</div>
+      <div class="ov-sub" id="ov-all-tl">—</div>
+    </div>
+  </div>
+
+  <!-- Portföy dağılımı -->
+  <div class="sec-title"><span class="dot" style="background:var(--accent)"></span>PORTFÖY DAĞILIMI</div>
+  <div class="card" style="padding:10px">
+    <canvas id="pie-chart" height="200"></canvas>
+  </div>
+
+  <!-- Her portföyün katkısı -->
+  <div class="sec-title"><span class="dot" style="background:var(--yellow)"></span>PORTFÖY DETAYI</div>
+  <div class="card" id="pf-detail"></div>
+</div>
+
+<!-- GİRİŞ -->
+<div id="tab-entry" class="section">
+  <div class="sec-title"><span class="dot" style="background:var(--accent)"></span>PORTFÖY DEĞERLERİ</div>
+  <div class="card" id="entry-fields"></div>
+  <div style="padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;color:var(--muted)">Toplam (₺)</div>
+      <div id="entry-total-tl" style="font-family:'Share Tech Mono',monospace;font-size:18px;color:var(--accent)">—</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+      <div style="font-size:13px;color:var(--muted)">Toplam ($)</div>
+      <div id="entry-total-usd" style="font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--green)">—</div>
+    </div>
+  </div>
+  <button class="btn" onclick="saveSnapshot()">💾 KAYDET</button>
+</div>
+
+<!-- GRAFİK -->
+<div id="tab-chart" class="section">
+  <div class="card" style="padding:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="sec-title" style="margin:0;border:none;padding:0"><span class="dot" style="background:var(--accent)"></span>TOPLAM ₺</div>
+      <div class="range-btns">
+        <button class="range-btn active" onclick="setRange(10,this)">10K</button>
+        <button class="range-btn" onclick="setRange(30,this)">30K</button>
+        <button class="range-btn" onclick="setRange(0,this)">TÜM</button>
+      </div>
+    </div>
+    <canvas id="chart-tl" height="180"></canvas>
+  </div>
+  <div class="card" style="padding:10px;margin-top:0">
+    <div class="sec-title" style="margin-bottom:8px"><span class="dot" style="background:var(--green)"></span>% BÜYÜME (Başlangıçtan)</div>
+    <canvas id="chart-pct" height="140"></canvas>
+  </div>
+  <div class="card" style="padding:10px;margin-top:0">
+    <div class="sec-title" style="margin-bottom:8px"><span class="dot" style="background:var(--yellow)"></span>PORTFÖY DAĞILIMI TARİHİ</div>
+    <canvas id="chart-stacked" height="160"></canvas>
+    <div id="chart-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- GEÇMİŞ -->
+<div id="tab-history" class="section">
+  <div class="sec-title"><span class="dot" style="background:var(--yellow)"></span>KAYIT GEÇMİŞİ</div>
+  <div class="card" id="hist-container">
+    <div style="text-align:center;color:var(--muted);padding:20px">Henüz kayıt yok</div>
+  </div>
+</div>
+
+<div id="alert"><span id="alert-text"></span></div>
+
+<script>
+// ── PORTFÖYLER ─────────────────────────────────────────────────────────────────
+var PORTFOLIOS=[
+  {id:'fon',      name:'Shannon Fon',     sub:'Ziraat/Optim Fonlar', color:'#00e5ff', currency:'TL'},
+  {id:'karma',    name:'Karma Portföy',   sub:'Altın/Gümüş/Dolar',   color:'#ffd700', currency:'TL'},
+  {id:'bes',      name:'BES Portföyü',    sub:'Bireysel Emeklilik',   color:'#a78bfa', currency:'TL'},
+  {id:'bist',     name:'BIST Yapay Zeka', sub:'AI Yönetimli BIST',    color:'#e63946', currency:'TL'},
+  {id:'nakit',    name:'Nakit Para',      sub:'Likit Nakit',          color:'#00ff88', currency:'TL'},
+  {id:'etf',      name:'Shannon ETF',     sub:'AMDG/SPXL/NVDU/TSLL', color:'#ff6d00', currency:'USD'},
+  {id:'sektoral', name:'Sektörel ETF',    sub:'TBXU/TEXU/TSXU/TTXU', color:'#ff9500', currency:'USD'},
+  {id:'kripto',   name:'Kripto',          sub:'Bot Portföyü',         color:'#f7931a', currency:'USD'},
+];
+
+var snapshots=[]; // [{date, values:{id:val,...}, totalTL, totalUSD, kur}]
+var currentVals={};
+var kurVal=0;
+var chartRange=10;
+
+window.onload=function(){load();buildEntryFields();fetchKur();render();};
+
+// ── KUR ───────────────────────────────────────────────────────────────────────
+function setManuelKur(v){var n=parseFloat(v);if(isNaN(n)||n<=0)return;kurVal=n;document.getElementById('kur-val').textContent=kurVal.toFixed(2);document.getElementById('kur-time').textContent='Manuel';updateEntryTotals();save();}
+
+async function fetchKur(){
+  document.getElementById('kur-val').innerHTML='<span class="spinner"></span>';
+  try{
+    var res=await fetch('https://query1.finance.yahoo.com/v8/finance/chart/USDTRY=X?interval=1d&range=1d');
+    if(!res.ok)throw new Error();
+    var data=await res.json();
+    var meta=data?.chart?.result?.[0]?.meta;
+    if(!meta)throw new Error();
+    kurVal=meta.regularMarketPrice||0;
+    document.getElementById('kur-val').textContent=kurVal.toFixed(2);
+    document.getElementById('kur-time').textContent=new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('kur-manuel').value='';
+    updateEntryTotals();save();
+  }catch(e){document.getElementById('kur-val').textContent=kurVal>0?kurVal.toFixed(2):'—';document.getElementById('kur-time').textContent='Alınamadı — manuel girin';}
+}
+
+// ── GİRİŞ ─────────────────────────────────────────────────────────────────────
+function buildEntryFields(){
+  var c=document.getElementById('entry-fields');
+  c.innerHTML='';
+  // TL grubu
+  var tlDiv=document.createElement('div');
+  tlDiv.innerHTML='<div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">🇹🇷 TL BAZLI</div>';
+  PORTFOLIOS.filter(function(p){return p.currency==='TL';}).forEach(function(p){
+    tlDiv.innerHTML+=buildInputRow(p);
+  });
+  c.appendChild(tlDiv);
+  // USD grubu
+  var usdDiv=document.createElement('div');
+  usdDiv.style.marginTop='14px';
+  usdDiv.innerHTML='<div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">🇺🇸 USD BAZLI</div>';
+  PORTFOLIOS.filter(function(p){return p.currency==='USD';}).forEach(function(p){
+    usdDiv.innerHTML+=buildInputRow(p);
+  });
+  c.appendChild(usdDiv);
+  // Event listener
+  PORTFOLIOS.forEach(function(p){
+    var inp=document.getElementById('dinp-'+p.id);
+    if(inp)inp.addEventListener('input',function(){currentVals[p.id]=parseFloat(this.value)||0;updateEntryTotals();});
+  });
+}
+
+function buildInputRow(p){
+  var cur=currentVals[p.id]||'';
+  return '<div class="inp-row">'+
+    '<div><div class="inp-name" style="color:'+p.color+'">'+p.name+'</div>'+
+    '<div class="inp-sub">'+p.sub+' ('+p.currency+')</div></div>'+
+    '<input class="inp-field" type="number" inputmode="decimal" step="0.01" placeholder="0.00" '+
+    'id="dinp-'+p.id+'" value="'+(cur||'')+'" '+
+    'onfocus="this.style.borderColor=\''+p.color+'\'" onblur="this.style.borderColor=\'var(--border)\'">'+
+    '</div>';
+}
+
+function updateEntryTotals(){
+  var totalTL=0;
+  PORTFOLIOS.forEach(function(p){
+    var v=parseFloat(document.getElementById('dinp-'+p.id)?.value)||0;
+    currentVals[p.id]=v;
+    if(p.currency==='TL')totalTL+=v;
+    else if(kurVal>0)totalTL+=v*kurVal;
+  });
+  var totalUSD=kurVal>0?totalTL/kurVal:0;
+  document.getElementById('entry-total-tl').textContent=totalTL>0?'₺'+fmtTL(totalTL):'—';
+  document.getElementById('entry-total-usd').textContent=totalUSD>0?'$'+fmt2(totalUSD):'—';
+}
+
+function saveSnapshot(){
+  var vals={};var totalTL=0;var hasVal=false;
+  PORTFOLIOS.forEach(function(p){
+    var v=parseFloat(document.getElementById('dinp-'+p.id)?.value)||0;
+    vals[p.id]=v;if(v>0)hasVal=true;
+    if(p.currency==='TL')totalTL+=v;
+    else if(kurVal>0)totalTL+=v*kurVal;
+  });
+  if(!hasVal){showAlert('err','En az bir portföy değeri girin!');return;}
+  var totalUSD=kurVal>0?totalTL/kurVal:0;
+  snapshots.push({date:new Date().toISOString(),values:vals,totalTL:totalTL,totalUSD:totalUSD,kur:kurVal});
+  currentVals=Object.assign({},vals);
+  save();render();
+  showAlert('ok','Kaydedildi! Toplam: ₺'+fmtTL(totalTL));
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function fmtTL(n){return Math.round(n).toLocaleString('tr-TR');}
+function fmt2(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+function cls(n){return n>0?'pos':n<0?'neg':'neu';}
+
+function render(){
+  if(snapshots.length===0){
+    document.getElementById('h-total-tl').textContent='—';
+    document.getElementById('h-total-usd').textContent='—';
+    document.getElementById('last-update').textContent='Henüz kayıt yok';
+    document.getElementById('ov-tl').textContent='—';
+    document.getElementById('ov-usd').textContent='—';
+    document.getElementById('pf-detail').innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Giriş sekmesinden değerleri girin</div>';
+    document.getElementById('hist-container').innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Henüz kayıt yok</div>';
+    setTimeout(drawPie,50);
+    return;
+  }
+
+  var last=snapshots[snapshots.length-1];
+  var first=snapshots[0];
+  var prev=snapshots.length>=2?snapshots[snapshots.length-2]:null;
+
+  // Header
+  document.getElementById('h-total-tl').textContent='₺'+fmtTL(last.totalTL);
+  document.getElementById('h-total-usd').textContent=last.totalUSD>0?'$'+fmt2(last.totalUSD):'';
+  document.getElementById('last-update').textContent=new Date(last.date).toLocaleDateString('tr-TR')+' '+new Date(last.date).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+
+  // Özet
+  document.getElementById('ov-tl').textContent='₺'+fmtTL(last.totalTL);
+  document.getElementById('ov-usd').textContent=last.totalUSD>0?'$'+fmt2(last.totalUSD):'—';
+
+  // Önceki kayıt değişimi
+  if(prev){
+    var pp=(last.totalTL-prev.totalTL)/prev.totalTL*100;
+    var ep=document.getElementById('ov-prev-pct');ep.textContent=fmtPct(pp);ep.className='ov-val '+cls(pp);
+    document.getElementById('ov-prev-tl').textContent=(last.totalTL-prev.totalTL>=0?'+':'')+fmtTL(last.totalTL-prev.totalTL)+'₺';
+  }
+
+  // Başlangıçtan
+  var ap=(last.totalTL-first.totalTL)/first.totalTL*100;
+  var ea=document.getElementById('ov-all-pct');ea.textContent=fmtPct(ap);ea.className='ov-val '+cls(ap);
+  document.getElementById('ov-all-tl').textContent=(last.totalTL-first.totalTL>=0?'+':'')+fmtTL(last.totalTL-first.totalTL)+'₺';
+
+  // Portföy detayı
+  renderPfDetail(last);
+  renderHistory();
+  setTimeout(drawPie,50);
+}
+
+function renderPfDetail(last){
+  var c=document.getElementById('pf-detail');
+  var html='';
+  var sorted=PORTFOLIOS.slice().sort(function(a,b){
+    var va=last.values[a.id]||0;var vb=last.values[b.id]||0;
+    var tla=a.currency==='TL'?va:(va*(last.kur||1));
+    var tlb=b.currency==='TL'?vb:(vb*(last.kur||1));
+    return tlb-tla;
+  });
+  sorted.forEach(function(p){
+    var v=last.values[p.id]||0;if(!v)return;
+    var tlV=p.currency==='TL'?v:(v*(last.kur||1));
+    var pct=last.totalTL>0?tlV/last.totalTL*100:0;
+    html+='<div class="pf-row">'+
+      '<div class="pf-left">'+
+      '<div class="pf-dot" style="background:'+p.color+'"></div>'+
+      '<div><div class="pf-name" style="color:'+p.color+'">'+p.name+'</div>'+
+      '<div class="pf-sub">'+p.sub+'</div></div></div>'+
+      '<div class="pf-right">'+
+      '<div class="pf-val">'+
+        (p.currency==='TL'?'₺'+fmtTL(v):'$'+fmt2(v))+
+        (p.currency==='USD'&&last.kur>0?'<span style="font-size:10px;color:var(--muted)"> ≈₺'+fmtTL(tlV)+'</span>':'')+
+      '</div>'+
+      '<div class="pf-pct neu">%'+pct.toFixed(1)+'</div>'+
+      '<div class="pf-bar-wrap"><div class="pf-bar" style="width:'+Math.min(100,pct*4)+'%;background:'+p.color+'"></div></div>'+
+      '</div></div>';
+  });
+  c.innerHTML=html||'<div style="text-align:center;color:var(--muted);padding:16px">Veri yok</div>';
+}
+
+function renderHistory(){
+  var c=document.getElementById('hist-container');
+  var reversed=snapshots.slice().reverse();
+  c.innerHTML=reversed.map(function(s,ri){
+    var i=snapshots.length-1-ri;
+    var prev=i>0?snapshots[i-1]:null;
+    var d=new Date(s.date);
+    var ch=prev?((s.totalTL-prev.totalTL)/prev.totalTL*100):null;
+    return '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+      '<div>'+
+      '<div style="font-size:11px;color:var(--muted)">'+d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+'</div>'+
+      '<div style="font-family:\'Share Tech Mono\',monospace;font-size:16px;color:var(--accent)">₺'+fmtTL(s.totalTL)+'</div>'+
+      (s.totalUSD>0?'<div style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--muted)">$'+fmt2(s.totalUSD)+'</div>':'')+
+      '</div>'+
+      '<div style="text-align:right">'+
+      (ch!==null?'<div style="font-family:\'Share Tech Mono\',monospace;font-size:13px" class="'+cls(ch)+'">'+fmtPct(ch)+'</div>':'')+
+      '<button onclick="deleteSnapshot('+i+')" style="background:rgba(255,56,96,.1);border:1px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;margin-top:4px;display:block">Sil</button>'+
+      '</div></div>'+
+      // Mini portföy özeti
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">'+
+      PORTFOLIOS.filter(function(p){return s.values[p.id]>0;}).map(function(p){
+        return '<span style="font-size:10px;font-family:\'Share Tech Mono\',monospace;color:'+p.color+';background:'+p.color+'18;padding:2px 6px;border-radius:4px">'+
+          p.name.split(' ')[1]||p.name+': '+(p.currency==='TL'?'₺'+fmtTL(s.values[p.id]):'$'+fmt2(s.values[p.id]))+'</span>';
+      }).join('')+
+      '</div></div>';
+  }).join('')||'<div style="text-align:center;color:var(--muted);padding:20px">Henüz kayıt yok</div>';
+}
+
+function deleteSnapshot(i){snapshots.splice(i,1);save();render();showAlert('ok','Kayıt silindi');}
+
+// ── GRAFİKLER ─────────────────────────────────────────────────────────────────
+function showTab(el){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('tab-'+el.dataset.tab).classList.add('active');
+  if(el.dataset.tab==='chart'||el.dataset.tab==='overview')setTimeout(function(){drawPie();drawCharts();},50);
+}
+
+function setRange(r,btn){chartRange=r;document.querySelectorAll('.range-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');drawCharts();}
+
+function drawPie(){
+  if(snapshots.length===0)return;
+  var last=snapshots[snapshots.length-1];
+  var c=document.getElementById('pie-chart');
+  var ctx=c.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  c.width=(c.offsetWidth||300)*dpr;c.height=200*dpr;ctx.scale(dpr,dpr);
+  var W=c.offsetWidth||300,H=200;ctx.clearRect(0,0,W,H);
+  var cx=W/2,cy=H/2,r=Math.min(cx,cy)-20;
+  var data=PORTFOLIOS.map(function(p){
+    var v=last.values[p.id]||0;
+    var tlV=p.currency==='TL'?v:(v*(last.kur||1));
+    return{name:p.name,val:tlV,color:p.color};
+  }).filter(function(d){return d.val>0;});
+  if(data.length===0)return;
+  var total=data.reduce(function(s,d){return s+d.val;},0);
+  var start=-Math.PI/2;
+  data.forEach(function(d){
+    var angle=d.val/total*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+angle);ctx.closePath();
+    ctx.fillStyle=d.color;ctx.fill();
+    ctx.strokeStyle='#0a0c0f';ctx.lineWidth=2;ctx.stroke();
+    // Etiket
+    var mid=start+angle/2;
+    var lx=cx+Math.cos(mid)*(r*0.65);var ly=cy+Math.sin(mid)*(r*0.65);
+    var pct=(d.val/total*100);
+    if(pct>5){ctx.fillStyle='#000';ctx.font='bold '+Math.round(10*dpr/dpr)+'px Rajdhani';ctx.textAlign='center';ctx.fillText(pct.toFixed(0)+'%',lx,ly+4);}
+    start+=angle;
+  });
+  // Ortada toplam
+  ctx.fillStyle='var(--accent)';ctx.font='bold 13px Share Tech Mono';ctx.textAlign='center';
+  ctx.fillText('₺'+fmtTL(total),cx,cy-6);
+  ctx.fillStyle='var(--muted)';ctx.font='10px Rajdhani';
+  ctx.fillText('TOPLAM',cx,cy+10);
+  // Legend sağda
+  var legX=W-10,legY=20;
+  data.forEach(function(d,i){
+    ctx.fillStyle=d.color;ctx.fillRect(legX-80,legY+i*18,10,10);
+    ctx.fillStyle='rgba(224,232,240,.7)';ctx.font='9px Rajdhani';ctx.textAlign='left';
+    var short=d.name.length>12?d.name.substring(0,10)+'..':d.name;
+    ctx.fillText(short,legX-65,legY+i*18+9);
+  });
+}
+
+function drawCharts(){
+  if(snapshots.length<2)return;
+  var data=chartRange>0?snapshots.slice(-chartRange):snapshots;
+  var dpr=window.devicePixelRatio||1;
+
+  // TL Grafiği
+  var c1=document.getElementById('chart-tl');var ctx1=c1.getContext('2d');
+  c1.width=(c1.offsetWidth||300)*dpr;c1.height=180*dpr;ctx1.scale(dpr,dpr);
+  var W=c1.offsetWidth||300,H=180;ctx1.clearRect(0,0,W,H);
+  var vals=data.map(function(s){return s.totalTL;});
+  var minV=Math.min.apply(null,vals)*0.99,maxV=Math.max.apply(null,vals)*1.01,range=maxV-minV||1;
+  function toY(v){return H-15-(v-minV)/range*(H-30);}
+  function toX(i){return 40+(i/(data.length-1||1))*(W-50);}
+  drawGrid(ctx1,W,H);
+  ctx1.fillStyle='rgba(90,106,122,.7)';ctx1.font='9px Share Tech Mono';ctx1.textAlign='right';
+  for(var g=0;g<5;g++){var v=minV+g*(maxV-minV)/4;ctx1.fillText((v/1000000).toFixed(1)+'M',36,H-15-g*(H-30)/4+4);}
+  ctx1.beginPath();ctx1.moveTo(toX(0),H-15);
+  data.forEach(function(s,i){ctx1.lineTo(toX(i),toY(s.totalTL));});
+  ctx1.lineTo(toX(data.length-1),H-15);ctx1.closePath();
+  var grad=ctx1.createLinearGradient(0,0,0,H);grad.addColorStop(0,'rgba(0,229,255,.3)');grad.addColorStop(1,'rgba(0,229,255,0)');
+  ctx1.fillStyle=grad;ctx1.fill();
+  ctx1.strokeStyle='#00e5ff';ctx1.lineWidth=2;ctx1.beginPath();
+  data.forEach(function(s,i){i===0?ctx1.moveTo(toX(i),toY(s.totalTL)):ctx1.lineTo(toX(i),toY(s.totalTL));});ctx1.stroke();
+  drawXLabels(ctx1,data,toX,H);
+
+  // % Grafik
+  var c2=document.getElementById('chart-pct');var ctx2=c2.getContext('2d');
+  c2.width=(c2.offsetWidth||300)*dpr;c2.height=140*dpr;ctx2.scale(dpr,dpr);
+  var W2=c2.offsetWidth||300,H2=140;ctx2.clearRect(0,0,W2,H2);
+  var fv=data[0].totalTL;
+  var pcts=data.map(function(s){return(s.totalTL-fv)/fv*100;});
+  var minP=Math.min.apply(null,pcts)-0.5,maxP=Math.max.apply(null,pcts)+0.5,rP=maxP-minP||1;
+  function toYp(v){return H2-15-(v-minP)/rP*(H2-30);}
+  function toXp(i){return 40+(i/(data.length-1||1))*(W2-50);}
+  drawGrid(ctx2,W2,H2);
+  ctx2.strokeStyle='rgba(255,255,255,.15)';ctx2.lineWidth=1;ctx2.setLineDash([4,4]);
+  ctx2.beginPath();ctx2.moveTo(40,toYp(0));ctx2.lineTo(W2-10,toYp(0));ctx2.stroke();ctx2.setLineDash([]);
+  ctx2.fillStyle='rgba(90,106,122,.7)';ctx2.font='9px Share Tech Mono';ctx2.textAlign='right';
+  for(var g2=0;g2<5;g2++){ctx2.fillText((minP+g2*(maxP-minP)/4).toFixed(1)+'%',36,H2-15-g2*(H2-30)/4+4);}
+  ctx2.strokeStyle='#00ff88';ctx2.lineWidth=2;ctx2.beginPath();
+  pcts.forEach(function(v,i){i===0?ctx2.moveTo(toXp(i),toYp(v)):ctx2.lineTo(toXp(i),toYp(v));});ctx2.stroke();
+  drawXLabels(ctx2,data,toXp,H2);
+
+  // Stacked alan grafik
+  var c3=document.getElementById('chart-stacked');var ctx3=c3.getContext('2d');
+  c3.width=(c3.offsetWidth||300)*dpr;c3.height=160*dpr;ctx3.scale(dpr,dpr);
+  var W3=c3.offsetWidth||300,H3=160;ctx3.clearRect(0,0,W3,H3);
+  var maxTL=Math.max.apply(null,data.map(function(s){return s.totalTL;}))*1.02||1;
+  function toY3(v){return H3-10-v/maxTL*(H3-20);}
+  function toX3(i){return 40+(i/(data.length-1||1))*(W3-50);}
+  drawGrid(ctx3,W3,H3);
+  var activePFs=PORTFOLIOS.filter(function(p){return data.some(function(s){return s.values[p.id]>0;});});
+  activePFs.forEach(function(p){
+    ctx3.strokeStyle=p.color;ctx3.lineWidth=1.5;ctx3.beginPath();
+    var started=false;
+    data.forEach(function(s,i){
+      var v=s.values[p.id]||0;var tlV=p.currency==='TL'?v:(v*(s.kur||1));
+      if(tlV>0){if(!started){ctx3.moveTo(toX3(i),toY3(tlV));started=true;}else ctx3.lineTo(toX3(i),toY3(tlV));}
+    });
+    ctx3.stroke();
+  });
+  drawXLabels(ctx3,data,toX3,H3);
+  var leg=document.getElementById('chart-legend');
+  leg.innerHTML=activePFs.map(function(p){
+    return '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)">'+
+      '<span style="width:10px;height:10px;border-radius:50%;background:'+p.color+';display:inline-block"></span>'+p.name+'</div>';
+  }).join('');
+}
+
+function drawGrid(ctx,W,H){ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;for(var g=0;g<5;g++){var y=15+g*(H-30)/4;ctx.beginPath();ctx.moveTo(40,y);ctx.lineTo(W-10,y);ctx.stroke();}}
+function drawXLabels(ctx,data,toX,H){ctx.fillStyle='rgba(90,106,122,.7)';ctx.font='9px Share Tech Mono';ctx.textAlign='center';var step=Math.max(1,Math.floor(data.length/5));for(var i=0;i<data.length;i+=step){var d=new Date(data[i].date);ctx.fillText(d.getDate()+'/'+(d.getMonth()+1),toX(i),H-2);}}
+
+// ── KAYDET / YÜKLE ─────────────────────────────────────────────────────────────
+function save(){
+  try{var d=JSON.stringify({snapshots:snapshots,currentVals:currentVals,kur:kurVal});
+    try{localStorage.setItem('ana_dashboard',d);}catch(e){}
+    try{sessionStorage.setItem('ana_dashboard',d);}catch(e){}
+    try{var enc=btoa(unescape(encodeURIComponent(d)));document.cookie='ana_dashboard='+enc+';path=/;max-age=31536000;SameSite=Strict';}catch(e){}
+  }catch(e){}
+}
+function load(){
+  try{var raw=null;
+    try{raw=localStorage.getItem('ana_dashboard');}catch(e){}
+    if(!raw){try{raw=sessionStorage.getItem('ana_dashboard');}catch(e){}}
+    if(!raw){try{var m=document.cookie.match(/ana_dashboard=([^;]+)/);if(m)raw=decodeURIComponent(escape(atob(m[1])));}catch(e){}}
+    if(!raw)return;var s=JSON.parse(raw);
+    snapshots=s.snapshots||[];currentVals=s.currentVals||{};if(s.kur)kurVal=s.kur;
+    // Input'ları doldur
+    PORTFOLIOS.forEach(function(p){var inp=document.getElementById('dinp-'+p.id);if(inp&&currentVals[p.id])inp.value=currentVals[p.id];});
+    if(kurVal>0)document.getElementById('kur-val').textContent=kurVal.toFixed(2);
+  }catch(e){}
+}
+function showAlert(type,msg){var el=document.getElementById('alert');document.getElementById('alert-text').textContent=msg;el.className=type;el.style.display='flex';setTimeout(function(){el.style.display='none';},3000);}
+</script>
+</body>
+</html>
